@@ -2,8 +2,8 @@ version: "3"
 
 services:
 ####################### API Backend Definition #######################
-  dotnet-webapi:
-    container_name: issuer-api-backend
+  issuer-api-dev:
+    container_name: issuer-api-dev
     build:
       context: issuer-api/
       dockerfile: openshift.dockerfile
