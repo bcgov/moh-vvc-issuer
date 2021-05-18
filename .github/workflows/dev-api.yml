@@ -3,7 +3,7 @@ name: dev-api
 on:
   push:
     branches:
-      - dev
+      - develop
 
 env:
   IMAGE_NAME: dev-api
