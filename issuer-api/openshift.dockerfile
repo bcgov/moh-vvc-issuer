@@ -58,4 +58,4 @@ COPY --from=build /opt/app-root/app /opt/app-root/app
 # RUN chmod -R 777 /app/.*
 
 EXPOSE 8080 5001 1025
-ENTRYPOINT [ "./entrypoint.sh" ]
+# ENTRYPOINT [ "./entrypoint.sh" ]
