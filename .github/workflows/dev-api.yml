@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: Development
     env:
-      SERVICE_NAME: moh-vvc-issuer-api
+      SERVICE_NAME: issuer-api-dev
       CONTAINER_NAME: moh-vvc-issuer-api
       IMAGE_TAG: dev
 
