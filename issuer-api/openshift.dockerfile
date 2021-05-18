@@ -2,7 +2,7 @@
 ### Stage 1 - Build environment ###
 ###################################
 # FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
-FROM registry.redhat.io/rhel8/dotnet-31 AS build
+FROM registry.access.redhat.com/ubi8/dotnet-31 AS build
 WORKDIR /opt/app-root/app
 ARG API_PORT
 ARG ASPNETCORE_ENVIRONMENT
