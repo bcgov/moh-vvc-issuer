@@ -1,0 +1,77 @@
+name: dev-api
+
+on:
+  push:
+    branches:
+      - dev
+
+env:
+  IMAGE_NAME: dev-api
+  IMAGE_ID: ${{ secrets.OCP4_REGISTRY }}/${{ secrets.OCP4_NAMESPACE }}/dev-api
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Log into registry
+        run: echo "${{ secrets.OCP4_PASSWORD  }}" | docker login ${{ secrets.OCP4_REGISTRY }}/${{ secrets.OCP4_NAMESPACE }} -u ${{ secrets.OCP4_USERNAME  }} --password-stdin
+
+      - name: Pull image
+        run: docker pull $IMAGE_ID || true
+
+      - name: Build image
+        working-directory: ./issuer-api
+        run: docker build . --file Dockerfile --tag $IMAGE_NAME --cache-from=$IMAGE_ID
+
+      - name: Push image
+        run: |
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix from version
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          # Strip "v" prefix from tag name
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Use Docker `latest` tag convention
+          [ "$VERSION" == "master" ] && VERSION=latest
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+  apply-oc-template:
+    runs-on: ubuntu-20.04
+    environment: Development
+    steps:
+      - name: "Use the OpenShift template"
+        uses: actions/checkout@v2
+
+      - name: Install OC
+        uses: redhat-actions/oc-installer@v1
+        with:
+          oc_version: "4.6"
+
+      - name: Authenticate and set context
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{secrets.OPENSHIFT_SERVER_URL}}
+          openshift_token: ${{secrets.OPENSHIFT_SERVICE_TOKEN}}
+          namespace: ${{secrets.OPENSHIFT_LICENSE_PLATE}}-dev
+
+      - name: "Process template"
+        id: oc
+        env:
+          COMPOSE_DOCKER_CLI_BUILD: 1
+          DOCKER_BUILDKIT: 1
+          IMAGE_TAG: dev
+          SVC_NAME: vvc
+        run: |
+          oc process -f openshift/vvc-issuer.yml \
+            -p SVC_NAME=$SVC_NAME \
+            -p IMAGE_TAG=$IMAGE_TAG \
+            -p OC_NAMESPACE=${{secrets.OPENSHIFT_LICENSE_PLATE}} \
+            -p OC_APP=dev \
+            -p URL_STUB=-${{secrets.OPENSHIFT_LICENSE_PLATE}}-dev.apps.silver.devops.gov.bc.ca \
+            -n ${{secrets.OPENSHIFT_LICENSE_PLATE}}-dev | oc apply -f -
