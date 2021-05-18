@@ -15,10 +15,15 @@ jobs:
     if: github.event_name == 'push'
 
     steps:
-      - uses: actions/checkout@v2
+      - name: "Checkout the repo"
+        uses: actions/checkout@v2
 
-      - name: Log into registry
-        run: echo "${{ secrets.OCP4_PASSWORD  }}" | docker login ${{ secrets.OCP4_REGISTRY }}/${{ secrets.OCP4_NAMESPACE }} -u ${{ secrets.OCP4_USERNAME  }} --password-stdin
+      - name: "Login to OpenShift repository"
+        uses: docker/login-action@v1
+        with:
+          registry: ${{secrets.OPENSHIFT_IMAGE_REPOSITORY}}
+          username: ${{secrets.OPENSHIFT_TOOLS_SERVICE_ACCOUNT_USERNAME}}
+          password: ${{secrets.OPENSHIFT_TOOLS_SERVICE_ACCOUNT_PASSWORD}}
 
       - name: Pull image
         run: docker pull $IMAGE_ID || true
