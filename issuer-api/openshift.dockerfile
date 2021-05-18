@@ -51,8 +51,8 @@ COPY --from=build /opt/app-root/app /opt/app-root/app
 # RUN yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm && \
 #     yum install -y postgresql10
 
-RUN chmod +x entrypoint.sh
-RUN chmod 777 entrypoint.sh
+# RUN chmod +x entrypoint.sh
+# RUN chmod 777 entrypoint.sh
 # RUN chmod -R 777 /var/run/
 RUN chmod -R 777 /opt/app-root/app
 # RUN chmod -R 777 /app/.*
