@@ -29,13 +29,6 @@ jobs:
           username: ${{secrets.OPENSHIFT_TOOLS_SERVICE_ACCOUNT_USERNAME}}
           password: ${{secrets.OPENSHIFT_TOOLS_SERVICE_ACCOUNT_PASSWORD}}
 
-      - name: Pull image
-        run: docker pull $IMAGE_ID || true
-
-      - name: Build image
-        working-directory: ./issuer-api
-        run: docker build . --file Dockerfile --tag $IMAGE_NAME --cache-from=$IMAGE_ID
-
       - name: "Build, tag and push .NET web API image"
         id: build-image
         env:
