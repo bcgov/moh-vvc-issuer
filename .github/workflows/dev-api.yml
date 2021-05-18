@@ -10,9 +10,13 @@ env:
   IMAGE_ID: ${{ secrets.OCP4_REGISTRY }}/${{ secrets.OCP4_NAMESPACE }}/dev-api
 
 jobs:
-  build:
+  build-backend:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    environment: Development
+    env:
+      SERVICE_NAME: moh-vvc-issuer-api
+      CONTAINER_NAME: moh-vvc-issuer-api
+      IMAGE_TAG: dev
 
     steps:
       - name: "Checkout the repo"
@@ -32,20 +36,21 @@ jobs:
         working-directory: ./issuer-api
         run: docker build . --file Dockerfile --tag $IMAGE_NAME --cache-from=$IMAGE_ID
 
-      - name: Push image
+      - name: "Build, tag and push .NET web API image"
+        id: build-image
+        env:
+          COMPOSE_DOCKER_CLI_BUILD: 1
+          DOCKER_BUILDKIT: 1
         run: |
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-          # Use Docker `latest` tag convention
-          [ "$VERSION" == "master" ] && VERSION=latest
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+          docker-compose -f oc4-compose.yml build --force-rm --no-cache \
+            --build-arg ASPNETCORE_HTTPS_PORT=5001 \
+            --build-arg ASPNETCORE_ENVIRONMENT="Development" \
+            --build-arg ASPNETCORE_URLS="http://+:8080" \
+            --build-arg DOTNET_CLI_HOME="/tmp/DOTNET_CLI_HOME" \
+            $SERVICE_NAME
+          docker tag moh-prime_$SERVICE_NAME ${{secrets.OPENSHIFT_IMAGE_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/$CONTAINER_NAME:$IMAGE_TAG
+          docker image push ${{secrets.OPENSHIFT_IMAGE_REGISTRY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/$CONTAINER_NAME:$IMAGE_TAG
+
   apply-oc-template:
     runs-on: ubuntu-20.04
     environment: Development
