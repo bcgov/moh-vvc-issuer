@@ -41,7 +41,7 @@ jobs:
             --build-arg ASPNETCORE_URLS="http://+:8080" \
             --build-arg DOTNET_CLI_HOME="/tmp/DOTNET_CLI_HOME" \
             $SERVICE_NAME
-          docker tag moh-vvc-_$SERVICE_NAME ${{secrets.OPENSHIFT_IMAGE_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/$CONTAINER_NAME:$IMAGE_TAG
+          docker tag moh-vvc-issuer_$SERVICE_NAME ${{secrets.OPENSHIFT_IMAGE_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/$CONTAINER_NAME:$IMAGE_TAG
           docker image push ${{secrets.OPENSHIFT_IMAGE_REGISTRY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/$CONTAINER_NAME:$IMAGE_TAG
 
   apply-oc-template:
