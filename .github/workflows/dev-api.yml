@@ -73,4 +73,4 @@ jobs:
             -p OC_NAMESPACE=${{secrets.OPENSHIFT_LICENSE_PLATE}} \
             -p OC_APP=dev \
             -p URL_STUB=-${{secrets.OPENSHIFT_LICENSE_PLATE}}-dev.apps.silver.devops.gov.bc.ca \
-            -n ${{secrets.OPENSHIFT_LICENSE_PLATE}}-dev | oc apply -f -
+            -n ${{secrets.OPENSHIFT_LICENSE_PLATE}}-${{secrets.OC_APP}} | oc apply -n ${{secrets.OPENSHIFT_LICENSE_PLATE}}-${{secrets.OC_APP}} -f -
