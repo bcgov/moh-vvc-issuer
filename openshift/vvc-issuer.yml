@@ -63,114 +63,114 @@ objects:
   ###           Backend Web API           ###
   ###########################################
   #   Backend Web API Deployment Config
-  - apiVersion: apps.openshift.io/v1
-    kind: DeploymentConfig
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  namespace: ${OC_NAMESPACE}-${OC_APP}
+  labels:
+    app: ${SVC_NAME}-${DB_POD}
+    app.kubernetes.io/component: ${SVC_NAME}
+    app.kubernetes.io/instance: ${SVC_NAME}
+    app.kubernetes.io/part-of: ${SVC_NAME}
+  metadata:
+    annotations:
+      app.openshift.io/connects-to: >-
+        [{"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${SVC_NAME}-${DB_POD}"}]
+    name: ${SVC_NAME}-${API_POD}
     namespace: ${OC_NAMESPACE}-${OC_APP}
     labels:
-      app: ${SVC_NAME}-${DB_POD}
-      app.kubernetes.io/component: ${SVC_NAME}
-      app.kubernetes.io/instance: ${SVC_NAME}
       app.kubernetes.io/part-of: ${SVC_NAME}
-    metadata:
-      annotations:
-        app.openshift.io/connects-to: >-
-          [{"apiVersion":"apps.openshift.io/v1","kind":"DeploymentConfig","name":"${SVC_NAME}-${DB_POD}"}]
+      app.openshift.io/runtime: dotnet
+  spec:
+    completionDeadlineSeconds: 1200
+    replicas: 1
+    selector:
       name: ${SVC_NAME}-${API_POD}
-      namespace: ${OC_NAMESPACE}-${OC_APP}
-      labels:
-        app.kubernetes.io/part-of: ${SVC_NAME}
-        app.openshift.io/runtime: dotnet
-    spec:
-      completionDeadlineSeconds: 1200
-      replicas: 1
-      selector:
-        name: ${SVC_NAME}-${API_POD}
-      strategy:
-        type: Recreate
-        maxSurge: 50%
-        maxUnavailable: 0
-      template:
-        metadata:
-          labels:
-            dev-app: ${SVC_NAME}
-            name: ${SVC_NAME}-${API_POD}
-        spec:
-          containers:
-            - name: ${SVC_NAME}-${API_POD}
-              image: >-
-                image-registry.openshift-image-registry.svc:5000/${OC_NAMESPACE}-tools/vvc-issuer-api:${IMAGE_TAG}
-              env:
-                - name: DB_HOST
-                  value: ${SVC_NAME}-${DB_POD}
-                - name: database-password
-                  valueFrom:
-                    secretKeyRef:
-                      name: vvc-postgresql-db
-                      key: database-password
-                - name: database-name
-                  valueFrom:
-                    secretKeyRef:
-                      name: vvc-postgresql-db
-                      key: database-user
-                - name: database-user
-                  valueFrom:
-                    secretKeyRef:
-                      name: vvc-postgresql-db
-                      key: database-user
-                - name: database-password
-                  valueFrom:
-                    secretKeyRef:
-                      name: vvc-postgresql-db
-                      key: database-password
-                - name: POSTGRESQL_ADMIN_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      name: vvc-postgresql-db
-                      key: database-password
-              ports:
-                - containerPort: 1025
-                  protocol: TCP
-                - containerPort: 5001
-                  protocol: TCP
-                - containerPort: 8080
-                  protocol: TCP
-              imagePullPolicy: IfNotPresent
-              terminationMessagePolicy: File
-              envFrom:
+    strategy:
+      type: Recreate
+      maxSurge: 50%
+      maxUnavailable: 0
+    template:
+      metadata:
+        labels:
+          dev-app: ${SVC_NAME}
+          name: ${SVC_NAME}-${API_POD}
+      spec:
+        containers:
+          - name: ${SVC_NAME}-${API_POD}
+            image: >-
+              image-registry.openshift-image-registry.svc:5000/${OC_NAMESPACE}-tools/vvc-issuer-api:${IMAGE_TAG}
+            env:
+              - name: DB_HOST
+                value: ${SVC_NAME}-${DB_POD}
+              - name: database-password
+                valueFrom:
+                  secretKeyRef:
+                    name: vvc-postgresql-db
+                    key: database-password
+              - name: database-name
+                valueFrom:
+                  secretKeyRef:
+                    name: vvc-postgresql-db
+                    key: database-user
+              - name: database-user
+                valueFrom:
+                  secretKeyRef:
+                    name: vvc-postgresql-db
+                    key: database-user
+              - name: database-password
+                valueFrom:
+                  secretKeyRef:
+                    name: vvc-postgresql-db
+                    key: database-password
+              - name: POSTGRESQL_ADMIN_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: vvc-postgresql-db
+                    key: database-password
+            ports:
+              - containerPort: 1025
+                protocol: TCP
+              - containerPort: 5001
+                protocol: TCP
+              - containerPort: 8080
+                protocol: TCP
+            imagePullPolicy: IfNotPresent
+            terminationMessagePolicy: File
+            envFrom:
 
-      triggers:
-        - type: ConfigChange
-        - type: ImageChange
-          imageChangeParams:
-            automatic: true
-            containerNames:
-              - ${SVC_NAME}-${API_POD}
-            from:
-              kind: ImageStreamTag
-              namespace: "${OC_NAMESPACE}-tools"
-              name: "vvc-issuer-api:${IMAGE_TAG}"
-    status: {}
+    triggers:
+      - type: ConfigChange
+      - type: ImageChange
+        imageChangeParams:
+          automatic: true
+          containerNames:
+            - ${SVC_NAME}-${API_POD}
+          from:
+            kind: ImageStreamTag
+            namespace: "${OC_NAMESPACE}-tools"
+            name: "vvc-issuer-api:${IMAGE_TAG}"
+  status: {}
   #   Backend Web API Service
-  - apiVersion: v1
-    kind: Service
+- apiVersion: v1
+  kind: Service
+  namespace: ${OC_NAMESPACE}-${OC_APP}
+  labels:
+    app: ${SVC_NAME}-${DB_POD}
+    app.kubernetes.io/component: ${SVC_NAME}
+    app.kubernetes.io/instance: ${SVC_NAME}
+    app.kubernetes.io/part-of: ${SVC_NAME}
+  metadata:
+    name: ${SVC_NAME}-${API_POD}
     namespace: ${OC_NAMESPACE}-${OC_APP}
     labels:
-      app: ${SVC_NAME}-${DB_POD}
-      app.kubernetes.io/component: ${SVC_NAME}
-      app.kubernetes.io/instance: ${SVC_NAME}
       app.kubernetes.io/part-of: ${SVC_NAME}
-    metadata:
+  spec:
+    ports:
+      - name: ${SVC_NAME}-${API_POD}
+        port: 8080
+        targetPort: 8080
+    selector:
       name: ${SVC_NAME}-${API_POD}
-      namespace: ${OC_NAMESPACE}-${OC_APP}
-      labels:
-        app.kubernetes.io/part-of: ${SVC_NAME}
-    spec:
-      ports:
-        - name: ${SVC_NAME}-${API_POD}
-          port: 8080
-          targetPort: 8080
-      selector:
-        name: ${SVC_NAME}-${API_POD}
 
   ###########################################
   ###         PostgreSQL Database         ###
