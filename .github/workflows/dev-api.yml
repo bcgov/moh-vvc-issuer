@@ -66,7 +66,7 @@ jobs:
           DOCKER_BUILDKIT: 1
 
         run: |
-          oc process -f infrastructure/prime-app-template.yml \
+          oc process -f openshift/vc-issuer.yml \
             -p API_POD=webapi \
             -p ASP_ENV=Development \
             -p IMAGE_TAG=dev \
