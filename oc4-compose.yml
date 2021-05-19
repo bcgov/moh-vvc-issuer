@@ -13,7 +13,3 @@ services:
 networks:
   openshift:
 
-####################### Volumes Definition #######################
-volumes:
-  local_postgres_data:
-

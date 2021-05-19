@@ -28,8 +28,6 @@ jobs:
       - name: "Build, tag and push .NET web API image"
         id: build-image
         env:
-          VVC_DB_PASSWORD: ${{secrets.VVC_DB_PASSWORD}}
-          VVC_DB_USER: ${{secrets.VVC_DB_USER}}
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
         run: |
@@ -37,14 +35,7 @@ jobs:
             --build-arg ASPNETCORE_HTTPS_PORT=5001 \
             --build-arg ASPNETCORE_ENVIRONMENT="Development" \
             --build-arg ASPNETCORE_URLS="http://+:8080" \
-            --build-arg DB_CONNECTION_STRING="host=dev-postgres-db;port=5432;database=postgres;username=$VVC_DB_USER;password=$VVC_DB_PASSWORD" \
-            --build-arg DB_HOST=dev-postgres-db \
             --build-arg DOTNET_CLI_HOME="/tmp/DOTNET_CLI_HOME" \
-            --build-arg PGPASSWORD=$VVC_DB_PASSWORD \
-            --build-arg POSTGRESQL_ADMIN_PASSWORD=$VVC_DB_PASSWORD \
-            --build-arg POSTGRESQL_USERNAME=$VVC_DB_USER \
-            --build-arg POSTGRESQL_DATABASE=postgres \
-            --build-arg SVC_NAME="dev" \
             $SERVICE_NAME
           docker tag moh-vvc-issuer_$SERVICE_NAME ${{secrets.OPENSHIFT_IMAGE_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/$CONTAINER_NAME:$IMAGE_TAG
           docker image push ${{secrets.OPENSHIFT_IMAGE_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/$CONTAINER_NAME:$IMAGE_TAG
@@ -78,7 +69,6 @@ jobs:
           oc process -f openshift/vvc-issuer.yml \
             -p API_POD=webapi \
             -p ASP_ENV=Development \
-            -p DB_POD=postgres-db \
             -p IMAGE_TAG=dev \
             -p SVC_NAME=dev \
             -p OC_NAMESPACE=${{secrets.OPENSHIFT_LICENSE_PLATE}} \
