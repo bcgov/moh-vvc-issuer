@@ -24,11 +24,6 @@ parameters:
   displayName: Openshift Environment
   description: dev/test/prod
   required: true
-- name: FRONTEND_POD
-  displayName: Frontend Pod Name
-  description: For naming the web/reverse proxy pod
-  required: true
-  value: frontend
 - name: FRONTEND_URL
   displayName: Frontend URL
   description: Minus the HTTP/HTTPS, this is your vanity URL or the prefix of your default URL
@@ -49,10 +44,6 @@ parameters:
   description: Postgres database
   required: true
   value: postgres
-- name: WEB_PORT
-  displayName: Web Port for NGINX
-  description: Termination port on NGINX (8080 or 8443)
-  value: "8080"
 - name: URL_STUB
   displayName: URL Stub
   description: Appended to all URLs, used in PRs
