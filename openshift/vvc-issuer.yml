@@ -137,7 +137,6 @@ objects:
             imagePullPolicy: IfNotPresent
             terminationMessagePolicy: File
             envFrom:
-
     triggers:
       - type: ConfigChange
       - type: ImageChange
