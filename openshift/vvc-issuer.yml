@@ -6,58 +6,58 @@ metadata:
   description: >-
     Deployment template for the VVC App
 parameters:
-  - name: SVC_NAME
-    displayName: Name
-    description: A name appended to all objects
-    required: true
-    value: vvc
-  - name: IMAGE_TAG
-    displayName: Image Tag
-    description: an identifier that labels which version an image belongs to.
-    required: true
-  - name: OC_NAMESPACE
-    displayName: OpenShift License Plate
-    description: Prepends your dev/test/prod URL
-    required: true
-    value: 1f9996
-  - name: OC_APP
-    displayName: Openshift Environment
-    description: dev/test/prod
-    required: true
-  - name: FRONTEND_POD
-    displayName: Frontend Pod Name
-    description: For naming the web/reverse proxy pod
-    required: true
-    value: frontend
-  - name: FRONTEND_URL
-    displayName: Frontend URL
-    description: Minus the HTTP/HTTPS, this is your vanity URL or the prefix of your default URL
-    required: true
-    value: frontend
-  - name: API_POD
-    displayName: API Pod Name
-    description: For the .NET API
-    required: true
-    value: webapi
-  - name: ASP_ENV
-    displayName: ASP.NET Environment
-    description: Development or Production
-    required: true
-    value: Development
-  - name: DB_POD
-    displayName: Database Pod
-    description: Postgres database
-    required: true
-    value: postgres
-  - name: WEB_PORT
-    displayName: Web Port for NGINX
-    description: Termination port on NGINX (8080 or 8443)
-    value: "8080"
-  - name: URL_STUB
-    displayName: URL Stub
-    description: Appended to all URLs, used in PRs
-    value: "-1f9996-dev.apps.silver.devops.gov.bc.ca"
-    required: false
+- name: SVC_NAME
+  displayName: Name
+  description: A name appended to all objects
+  required: true
+  value: vvc
+- name: IMAGE_TAG
+  displayName: Image Tag
+  description: an identifier that labels which version an image belongs to.
+  required: true
+- name: OC_NAMESPACE
+  displayName: OpenShift License Plate
+  description: Prepends your dev/test/prod URL
+  required: true
+  value: 1f9996
+- name: OC_APP
+  displayName: Openshift Environment
+  description: dev/test/prod
+  required: true
+- name: FRONTEND_POD
+  displayName: Frontend Pod Name
+  description: For naming the web/reverse proxy pod
+  required: true
+  value: frontend
+- name: FRONTEND_URL
+  displayName: Frontend URL
+  description: Minus the HTTP/HTTPS, this is your vanity URL or the prefix of your default URL
+  required: true
+  value: frontend
+- name: API_POD
+  displayName: API Pod Name
+  description: For the .NET API
+  required: true
+  value: webapi
+- name: ASP_ENV
+  displayName: ASP.NET Environment
+  description: Development or Production
+  required: true
+  value: Development
+- name: DB_POD
+  displayName: Database Pod
+  description: Postgres database
+  required: true
+  value: postgres
+- name: WEB_PORT
+  displayName: Web Port for NGINX
+  description: Termination port on NGINX (8080 or 8443)
+  value: "8080"
+- name: URL_STUB
+  displayName: URL Stub
+  description: Appended to all URLs, used in PRs
+  value: "-1f9996-dev.apps.silver.devops.gov.bc.ca"
+  required: false
 objects:
   ###########################################
   ###           Backend Web API           ###
