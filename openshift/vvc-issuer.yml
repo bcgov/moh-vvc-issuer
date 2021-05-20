@@ -6,58 +6,63 @@ metadata:
   description: >-
     Deployment template for the VVC App
 parameters:
-- name: SVC_NAME
-  displayName: Name
-  description: A name appended to all objects
-  required: true
-  value: vvc
-- name: IMAGE_TAG
-  displayName: Image Tag
-  description: an identifier that labels which version an image belongs to.
-  required: true
-- name: OC_NAMESPACE
-  displayName: OpenShift License Plate
-  description: Prepends your dev/test/prod URL
-  required: true
-  value: 1f9996
-- name: OC_APP
-  displayName: Openshift Environment
-  description: dev/test/prod
-  required: true
-- name: FRONTEND_URL
-  displayName: Frontend URL
-  description: Minus the HTTP/HTTPS, this is your vanity URL or the prefix of your default URL
-  required: true
-  value: frontend
-- name: API_POD
-  displayName: API Pod Name
-  description: For the .NET API
-  required: true
-  value: webapi
-- name: ASP_ENV
-  displayName: ASP.NET Environment
-  description: Development or Production
-  required: true
-  value: Development
-- name: DB_POD
-  displayName: Database Pod
-  description: Postgres database
-  required: true
-  value: postgres
-- name: WEB_PORT
-  displayName: Web Port for NGINX
-  description: Termination port on NGINX (8080 or 8443)
-  value: "8080"
-- name: URL_STUB
-  displayName: URL Stub
-  description: Appended to all URLs, used in PRs
-  value: "-1f9996-dev.apps.silver.devops.gov.bc.ca"
-  required: false
+  - name: SVC_NAME
+    displayName: Name
+    description: A name appended to all objects
+    required: true
+    value: vvc
+  - name: IMAGE_TAG
+    displayName: Image Tag
+    description: an identifier that labels which version an image belongs to.
+    required: true
+  - name: OC_NAMESPACE
+    displayName: OpenShift License Plate
+    description: Prepends your dev/test/prod URL
+    required: true
+    value: 1f9996
+  - name: OC_APP
+    displayName: Openshift Environment
+    description: dev/test/prod
+    required: true
+  - name: FRONTEND_POD
+    displayName: Frontend Pod Name
+    description: For naming the web/reverse proxy pod
+    required: true
+    value: frontend
+  - name: FRONTEND_URL
+    displayName: Frontend URL
+    description: Minus the HTTP/HTTPS, this is your vanity URL or the prefix of your default URL
+    required: true
+    value: frontend
+  - name: API_POD
+    displayName: API Pod Name
+    description: For the .NET API
+    required: true
+    value: webapi
+  - name: ASP_ENV
+    displayName: ASP.NET Environment
+    description: Development or Production
+    required: true
+    value: Development
+  - name: DB_POD
+    displayName: Database Pod
+    description: Postgres database
+    required: true
+    value: postgres
+  - name: WEB_PORT
+    displayName: Web Port for NGINX
+    description: Termination port on NGINX (8080 or 8443)
+    value: "8080"
+  - name: URL_STUB
+    displayName: URL Stub
+    description: Appended to all URLs, used in PRs
+    value: "-1f9996-dev.apps.silver.devops.gov.bc.ca"
+    required: false
 objects:
-###########################################
-###           Backend Web API           ###
-###########################################
-#   Backend Web API Deployment Config
+  ###########################################
+  ###           Backend Web API           ###
+  ###########################################
+  #   Backend Web API Deployment Config
 - apiVersion: apps.openshift.io/v1
   kind: DeploymentConfig
   namespace: ${OC_NAMESPACE}-${OC_APP}
@@ -132,6 +137,7 @@ objects:
             imagePullPolicy: IfNotPresent
             terminationMessagePolicy: File
             envFrom:
+
     triggers:
       - type: ConfigChange
       - type: ImageChange
@@ -166,141 +172,141 @@ objects:
     selector:
       name: ${SVC_NAME}-${API_POD}
 
-###########################################
-###         PostgreSQL Database         ###
-###########################################
-#   PostgreSQL database Deployment Config
-- apiVersion: apps.openshift.io/v1
-  kind: DeploymentConfig
-  namespace: ${OC_NAMESPACE}-${OC_APP}
-  labels:
-    app: ${SVC_NAME}-${DB_POD}
-    app.kubernetes.io/component: ${SVC_NAME}
-    app.kubernetes.io/instance: ${SVC_NAME}
-    app.kubernetes.io/part-of: ${SVC_NAME}
-  metadata:
-    name: ${SVC_NAME}-${DB_POD}
+  ###########################################
+  ###         PostgreSQL Database         ###
+  ###########################################
+  #   PostgreSQL database Deployment Config
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
     namespace: ${OC_NAMESPACE}-${OC_APP}
     labels:
+      app: ${SVC_NAME}-${DB_POD}
+      app.kubernetes.io/component: ${SVC_NAME}
+      app.kubernetes.io/instance: ${SVC_NAME}
       app.kubernetes.io/part-of: ${SVC_NAME}
-      app.openshift.io/runtime: postgresql
-  spec:
-    replicas: 1
-    selector:
+    metadata:
       name: ${SVC_NAME}-${DB_POD}
-    strategy: null
-    template:
-      metadata:
-        labels:
-          dev-app: ${SVC_NAME}
-          name: ${SVC_NAME}-${DB_POD}
-      spec:
-        containers:
-          - capabilities: {}
-            env:
-              - name: DB_HOST
-                value: ${SVC_NAME}-${DB_POD}
-              # PostgreSQL environment variables
-              - name: PGPASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: vvc-postgresql-db
-                    key: database-password
-              - name: POSTGRESQL_USER
-                valueFrom:
-                  secretKeyRef:
-                    name: vvc-postgresql-db
-                    key: database-user
-              - name: POSTGRESQL_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: vvc-postgresql-db
-                    key: database-password
-              - name: POSTGRESQL_DATABASE
-                valueFrom:
-                  secretKeyRef:
-                    name: vvc-postgresql-db
-                    key: database-name
-            image: >-
-              image-registry.openshift-image-registry.svc:5000/openshift/postgresql:10
-            imagePullPolicy: IfNotPresent
-            lifecycle:
-              preStop:
-                exec:
-                  command: ["pg_ctl", "stop"]
-            livenessProbe:
-              initialDelaySeconds: 30
-              tcpSocket:
-                port: 5432
-              timeoutSeconds: 1
+      namespace: ${OC_NAMESPACE}-${OC_APP}
+      labels:
+        app.kubernetes.io/part-of: ${SVC_NAME}
+        app.openshift.io/runtime: postgresql
+    spec:
+      replicas: 1
+      selector:
+        name: ${SVC_NAME}-${DB_POD}
+      strategy: null
+      template:
+        metadata:
+          labels:
+            dev-app: ${SVC_NAME}
             name: ${SVC_NAME}-${DB_POD}
-            ports:
-              - containerPort: 5432
-                protocol: TCP
-                name: postgresql
-            resources: {}
-            securityContext:
-              capabilities: {}
-              privileged: false
-            terminationMessagePath: /dev/termination-log
-            volumeMounts:
-              - mountPath: /var/lib/pgsql/data
-                name: ${SVC_NAME}-${DB_POD}-data
-              - mountPath: /var/run/postgresql
-                name: ${SVC_NAME}-${DB_POD}-run
-        dnsPolicy: ClusterFirst
-        restartPolicy: Always
-        volumes:
-          - name: ${SVC_NAME}-${DB_POD}-data
-            emptyDir: {}
-          - name: ${SVC_NAME}-${DB_POD}-run
-            emptyDir: {}
-  status: {}
-#   PostgreSQL Service
-- apiVersion: v1
-  kind: Service
-  namespace: ${OC_NAMESPACE}-${OC_APP}
-  labels:
-    app: ${SVC_NAME}-${DB_POD}
-    app.kubernetes.io/component: ${SVC_NAME}
-    app.kubernetes.io/instance: ${SVC_NAME}
-    app.kubernetes.io/part-of: ${SVC_NAME}
-  metadata:
-    name: ${SVC_NAME}-${DB_POD}
+        spec:
+          containers:
+            - capabilities: {}
+              env:
+                - name: DB_HOST
+                  value: ${SVC_NAME}-${DB_POD}
+                # PostgreSQL environment variables
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: vvc-postgresql-db
+                      key: database-password
+                - name: POSTGRESQL_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: vvc-postgresql-db
+                      key: database-user
+                - name: POSTGRESQL_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: vvc-postgresql-db
+                      key: database-password
+                - name: POSTGRESQL_DATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      name: vvc-postgresql-db
+                      key: database-name
+              image: >-
+                image-registry.openshift-image-registry.svc:5000/openshift/postgresql:10
+              imagePullPolicy: IfNotPresent
+              lifecycle:
+                preStop:
+                  exec:
+                    command: ["pg_ctl", "stop"]
+              livenessProbe:
+                initialDelaySeconds: 30
+                tcpSocket:
+                  port: 5432
+                timeoutSeconds: 1
+              name: ${SVC_NAME}-${DB_POD}
+              ports:
+                - containerPort: 5432
+                  protocol: TCP
+                  name: postgresql
+              resources: {}
+              securityContext:
+                capabilities: {}
+                privileged: false
+              terminationMessagePath: /dev/termination-log
+              volumeMounts:
+                - mountPath: /var/lib/pgsql/data
+                  name: ${SVC_NAME}-${DB_POD}-data
+                - mountPath: /var/run/postgresql
+                  name: ${SVC_NAME}-${DB_POD}-run
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          volumes:
+            - name: ${SVC_NAME}-${DB_POD}-data
+              emptyDir: {}
+            - name: ${SVC_NAME}-${DB_POD}-run
+              emptyDir: {}
+    status: {}
+  #   PostgreSQL Service
+  - apiVersion: v1
+    kind: Service
     namespace: ${OC_NAMESPACE}-${OC_APP}
     labels:
+      app: ${SVC_NAME}-${DB_POD}
+      app.kubernetes.io/component: ${SVC_NAME}
+      app.kubernetes.io/instance: ${SVC_NAME}
       app.kubernetes.io/part-of: ${SVC_NAME}
-  spec:
-    ports:
-      - name: ${SVC_NAME}-${DB_POD}
-        nodePort: 0
-        port: 5432
-        protocol: TCP
-        targetPort: 5432
-    selector:
+    metadata:
       name: ${SVC_NAME}-${DB_POD}
-    sessionAffinity: None
-    type: ClusterIP
-  status:
-    loadBalancer: {}
+      namespace: ${OC_NAMESPACE}-${OC_APP}
+      labels:
+        app.kubernetes.io/part-of: ${SVC_NAME}
+    spec:
+      ports:
+        - name: ${SVC_NAME}-${DB_POD}
+          nodePort: 0
+          port: 5432
+          protocol: TCP
+          targetPort: 5432
+      selector:
+        name: ${SVC_NAME}-${DB_POD}
+      sessionAffinity: None
+      type: ClusterIP
+    status:
+      loadBalancer: {}
 
-###########################################
-###           Network Policies          ###
-###########################################
-- apiVersion: networking.k8s.io/v1
-  kind: NetworkPolicy
-  metadata:
-    name: allow-internal-traffic
-    namespace: ${OC_NAMESPACE}-${OC_APP}
-  spec:
-    podSelector: {}
-    ingress:
-      - ports:
-          - protocol: TCP
-            port: 80
-          - protocol: TCP
-            port: 443
-          - protocol: TCP
-            port: 5432
-    policyTypes:
-      - Ingress
+  ###########################################
+  ###           Network Policies          ###
+  ###########################################
+  - apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: allow-internal-traffic
+      namespace: ${OC_NAMESPACE}-${OC_APP}
+    spec:
+      podSelector: {}
+      ingress:
+        - ports:
+            - protocol: TCP
+              port: 80
+            - protocol: TCP
+              port: 443
+            - protocol: TCP
+              port: 5432
+      policyTypes:
+        - Ingress
