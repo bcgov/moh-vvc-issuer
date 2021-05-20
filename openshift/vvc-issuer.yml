@@ -66,11 +66,6 @@ objects:
 - apiVersion: apps.openshift.io/v1
   kind: DeploymentConfig
   namespace: ${OC_NAMESPACE}-${OC_APP}
-  labels:
-    app: ${SVC_NAME}-${DB_POD}
-    app.kubernetes.io/component: ${SVC_NAME}
-    app.kubernetes.io/instance: ${SVC_NAME}
-    app.kubernetes.io/part-of: ${SVC_NAME}
   metadata:
     annotations:
       app.openshift.io/connects-to: >-
@@ -78,6 +73,9 @@ objects:
     name: ${SVC_NAME}-${API_POD}
     namespace: ${OC_NAMESPACE}-${OC_APP}
     labels:
+      app: ${SVC_NAME}-${DB_POD}
+      app.kubernetes.io/component: ${SVC_NAME}
+      app.kubernetes.io/instance: ${SVC_NAME}
       app.kubernetes.io/part-of: ${SVC_NAME}
       app.openshift.io/runtime: dotnet
   spec:
@@ -137,7 +135,6 @@ objects:
             imagePullPolicy: IfNotPresent
             terminationMessagePolicy: File
             envFrom:
-
     triggers:
       - type: ConfigChange
       - type: ImageChange
@@ -150,19 +147,18 @@ objects:
             namespace: "${OC_NAMESPACE}-tools"
             name: "vvc-issuer-api:${IMAGE_TAG}"
   status: {}
-  #   Backend Web API Service
+#   Backend Web API Service
 - apiVersion: v1
   kind: Service
   namespace: ${OC_NAMESPACE}-${OC_APP}
   labels:
-    app: ${SVC_NAME}-${DB_POD}
-    app.kubernetes.io/component: ${SVC_NAME}
-    app.kubernetes.io/instance: ${SVC_NAME}
-    app.kubernetes.io/part-of: ${SVC_NAME}
   metadata:
     name: ${SVC_NAME}-${API_POD}
     namespace: ${OC_NAMESPACE}-${OC_APP}
     labels:
+      app: ${SVC_NAME}-${DB_POD}
+      app.kubernetes.io/component: ${SVC_NAME}
+      app.kubernetes.io/instance: ${SVC_NAME}
       app.kubernetes.io/part-of: ${SVC_NAME}
   spec:
     ports:
@@ -179,15 +175,13 @@ objects:
 - apiVersion: apps.openshift.io/v1
   kind: DeploymentConfig
   namespace: ${OC_NAMESPACE}-${OC_APP}
-  labels:
-    app: ${SVC_NAME}-${DB_POD}
-    app.kubernetes.io/component: ${SVC_NAME}
-    app.kubernetes.io/instance: ${SVC_NAME}
-    app.kubernetes.io/part-of: ${SVC_NAME}
   metadata:
     name: ${SVC_NAME}-${DB_POD}
     namespace: ${OC_NAMESPACE}-${OC_APP}
     labels:
+      app: ${SVC_NAME}-${DB_POD}
+      app.kubernetes.io/component: ${SVC_NAME}
+      app.kubernetes.io/instance: ${SVC_NAME}
       app.kubernetes.io/part-of: ${SVC_NAME}
       app.openshift.io/runtime: postgresql
   spec:
@@ -266,15 +260,13 @@ objects:
 - apiVersion: v1
   kind: Service
   namespace: ${OC_NAMESPACE}-${OC_APP}
-  labels:
-    app: ${SVC_NAME}-${DB_POD}
-    app.kubernetes.io/component: ${SVC_NAME}
-    app.kubernetes.io/instance: ${SVC_NAME}
-    app.kubernetes.io/part-of: ${SVC_NAME}
   metadata:
     name: ${SVC_NAME}-${DB_POD}
     namespace: ${OC_NAMESPACE}-${OC_APP}
     labels:
+      app: ${SVC_NAME}-${DB_POD}
+      app.kubernetes.io/component: ${SVC_NAME}
+      app.kubernetes.io/instance: ${SVC_NAME}
       app.kubernetes.io/part-of: ${SVC_NAME}
   spec:
     ports:
