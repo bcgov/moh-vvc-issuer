@@ -62,11 +62,9 @@ WORKDIR /opt/app-root/app
 COPY --from=build /opt/app-root/app /opt/app-root/app
 
 RUN yum install -yqq https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm &&\
-    yum install -yqq http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/xorg-x11-fonts-75dpi-7.5-19.el8.noarch.rpm && \
-    yum install -yqq https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.centos8.x86_64.rpm
-RUN yum update -yqq && \
-    yum install -yqq perl-libs --skip-broken && \
     yum install -yqq postgresql10 
+RUN yum install -yqq http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/xorg-x11-fonts-75dpi-7.5-19.el8.noarch.rpm && \
+    yum install -yqq https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox-0.12.6-1.centos8.x86_64.rpm
 # RUN yum update -yqq && \
 #     yum install -y postgresql10 gpg gnupg2 wget && \
 #     yum install -yqq gpg gnupg2 wget
@@ -86,7 +84,7 @@ RUN chmod 777 entrypoint.sh
 # RUN chmod -R 777 /var/run/
 RUN chmod -R 777 /opt/app-root/app
 # RUN chmod -R 777 /app/.*
-
-EXPOSE 8080 5001 1025
+gres                                            13.2           26c8bcd8b719   5 weeks ago    314MB
+registry.redhat.io/ubi8/dotnet-50-runtime
 ENTRYPOINT [ "./entrypoint.sh" ]
 
