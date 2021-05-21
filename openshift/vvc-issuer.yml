@@ -145,7 +145,7 @@ objects:
           from:
             kind: ImageStreamTag
             namespace: "${OC_NAMESPACE}-tools"
-            name: "vvc-issuer-api:${IMAGE_TAG}"
+            name: 'vvc-issuer-api:${IMAGE_TAG}''
   status: {}
 #   Backend Web API Service
 - apiVersion: v1
