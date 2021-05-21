@@ -50,11 +50,11 @@ COPY --from=build /opt/app-root/app /opt/app-root/app
 #     yum install -y postgresql10 gpg gnupg2 wget && \
 #     yum install -yqq gpg gnupg2 wget
 
-# RUN chmod +x entrypoint.sh && \
-#     chmod 777 entrypoint.sh && \
-#     chmod -R 777 /var/run/ && \
-#     chmod -R 777 /opt/app-root && \
-#     chmod -R 777 /opt/app-root/.*
+RUN chmod +x entrypoint.sh && \
+    chmod 777 entrypoint.sh && \
+    chmod -R 777 /var/run/ && \
+    chmod -R 777 /opt/app-root && \
+    chmod -R 777 /opt/app-root/.*
 
 # RUN chmod +x entrypoint.sh
 # RUN chmod 777 entrypoint.sh
