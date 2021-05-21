@@ -251,11 +251,6 @@ objects:
 - apiVersion: apps.openshift.io/v1
   kind: DeploymentConfig
   namespace: ${OC_NAMESPACE}-${OC_APP}
-  labels:
-    app: ${SVC_NAME}-${DB_POD}
-    app.kubernetes.io/component: ${SVC_NAME}
-    app.kubernetes.io/instance: ${SVC_NAME}
-    app.kubernetes.io/part-of: ${SVC_NAME}
   metadata:
     annotations:
       app.openshift.io/connects-to: >-
@@ -263,6 +258,9 @@ objects:
     name: ${SVC_NAME}-${API_POD}
     namespace: ${OC_NAMESPACE}-${OC_APP}
     labels:
+      app: ${SVC_NAME}-${DB_POD}
+      app.kubernetes.io/component: ${SVC_NAME}
+      app.kubernetes.io/instance: ${SVC_NAME}
       app.kubernetes.io/part-of: ${SVC_NAME}
       app.openshift.io/runtime: dotnet
   spec:
@@ -329,46 +327,6 @@ objects:
             imagePullPolicy: IfNotPresent
             terminationMessagePolicy: File
             envFrom:
-              - configMapRef:
-                  name: canada-post-addresscomplete
-              - configMapRef:
-                  name: ches
-              - configMapRef:
-                  name: dotnet-webapi-backend
-              - configMapRef:
-                  name: keycloak
-              - configMapRef:
-                  name: ldap
-              - configMapRef:
-                  name: metabase-embedded
-              - configMapRef:
-                  name: pharmanet-api
-              - configMapRef:
-                  name: verifiable-credential
-              - secretRef:
-                  name: canada-post-addresscomplete-secrets
-              - secretRef:
-                  name: ches-secrets
-              - secretRef:
-                  name: document-manager-secrets
-              - secretRef:
-                  name: keycloak-secrets
-              - secretRef:
-                  name: metabase-embedded-secrets
-              - secretRef:
-                  name: pharmanet-api-secrets
-              - secretRef:
-                  name: pharmanet-api-ssl-certs
-              - secretRef:
-                  name: verifiable-credential-secrets
-            volumeMounts:
-              - name: cert-volume
-                mountPath: /opt/app-root/etc/certs
-                readOnly: true
-        volumes:
-          - name: cert-volume
-            secret:
-              secretName: pharmanet-api-ssl-certs
     triggers:
       - type: ConfigChange
       - type: ImageChange
@@ -386,14 +344,13 @@ objects:
   kind: Service
   namespace: ${OC_NAMESPACE}-${OC_APP}
   labels:
-    app: ${SVC_NAME}-${DB_POD}
-    app.kubernetes.io/component: ${SVC_NAME}
-    app.kubernetes.io/instance: ${SVC_NAME}
-    app.kubernetes.io/part-of: ${SVC_NAME}
   metadata:
     name: ${SVC_NAME}-${API_POD}
     namespace: ${OC_NAMESPACE}-${OC_APP}
     labels:
+      app: ${SVC_NAME}-${DB_POD}
+      app.kubernetes.io/component: ${SVC_NAME}
+      app.kubernetes.io/instance: ${SVC_NAME}
       app.kubernetes.io/part-of: ${SVC_NAME}
   spec:
     ports:
@@ -703,15 +660,13 @@ objects:
 - apiVersion: apps.openshift.io/v1
   kind: DeploymentConfig
   namespace: ${OC_NAMESPACE}-${OC_APP}
-  labels:
-    app: ${SVC_NAME}-${DB_POD}
-    app.kubernetes.io/component: ${SVC_NAME}
-    app.kubernetes.io/instance: ${SVC_NAME}
-    app.kubernetes.io/part-of: ${SVC_NAME}
   metadata:
     name: ${SVC_NAME}-${DB_POD}
     namespace: ${OC_NAMESPACE}-${OC_APP}
     labels:
+      app: ${SVC_NAME}-${DB_POD}
+      app.kubernetes.io/component: ${SVC_NAME}
+      app.kubernetes.io/instance: ${SVC_NAME}
       app.kubernetes.io/part-of: ${SVC_NAME}
       app.openshift.io/runtime: postgresql
   spec:
@@ -790,15 +745,13 @@ objects:
 - apiVersion: v1
   kind: Service
   namespace: ${OC_NAMESPACE}-${OC_APP}
-  labels:
-    app: ${SVC_NAME}-${DB_POD}
-    app.kubernetes.io/component: ${SVC_NAME}
-    app.kubernetes.io/instance: ${SVC_NAME}
-    app.kubernetes.io/part-of: ${SVC_NAME}
   metadata:
     name: ${SVC_NAME}-${DB_POD}
     namespace: ${OC_NAMESPACE}-${OC_APP}
     labels:
+      app: ${SVC_NAME}-${DB_POD}
+      app.kubernetes.io/component: ${SVC_NAME}
+      app.kubernetes.io/instance: ${SVC_NAME}
       app.kubernetes.io/part-of: ${SVC_NAME}
   spec:
     ports:
