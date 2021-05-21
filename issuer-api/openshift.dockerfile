@@ -84,7 +84,5 @@ RUN chmod 777 entrypoint.sh
 # RUN chmod -R 777 /var/run/
 RUN chmod -R 777 /opt/app-root/app
 # RUN chmod -R 777 /app/.*
-gres                                            13.2           26c8bcd8b719   5 weeks ago    314MB
-registry.redhat.io/ubi8/dotnet-50-runtime
 ENTRYPOINT [ "./entrypoint.sh" ]
 
