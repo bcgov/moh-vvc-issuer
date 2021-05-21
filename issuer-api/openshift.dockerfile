@@ -46,8 +46,6 @@ ENV API_PORT 8080
 WORKDIR /opt/app-root/app
 COPY --from=build /opt/app-root/app /opt/app-root/app
 
-RUN yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-
 RUN yum update -yqq && \
     yum install -y postgresql10 gpg gnupg2 wget && \
     yum install -yqq gpg gnupg2 wget
