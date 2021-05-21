@@ -46,9 +46,9 @@ ENV API_PORT 8080
 WORKDIR /opt/app-root/app
 COPY --from=build /opt/app-root/app /opt/app-root/app
 
-RUN yum update -yqq && \
-    yum install -y postgresql10 gpg gnupg2 wget && \
-    yum install -yqq gpg gnupg2 wget
+# RUN yum update -yqq && \
+#     yum install -y postgresql10 gpg gnupg2 wget && \
+#     yum install -yqq gpg gnupg2 wget
 
 RUN chmod +x entrypoint.sh && \
     chmod 777 entrypoint.sh && \
