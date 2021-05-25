@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+####################### API Backend Definition #######################
+  issuer-api-dev:
+    container_name: issuer-api-dev
+    build:
+      context: issuer-api/
+      dockerfile: openshift.dockerfile
+    networks:
+      - openshift
+####################### Networks Definition #######################
+networks:
+  openshift:
+
+####################### Volumes Definition #######################
+volumes:
+  local_postgres_data:
+

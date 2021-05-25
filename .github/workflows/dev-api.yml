@@ -1,0 +1,88 @@
+name: dev-api
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build-backend:
+    runs-on: ubuntu-latest
+    environment: Development
+    env:
+      SERVICE_NAME: issuer-api-dev
+      CONTAINER_NAME: moh-vvc-issuer-api
+      IMAGE_TAG: dev
+
+    steps:
+      - name: "Checkout the repo"
+        uses: actions/checkout@v2
+
+      - name: "Login to OpenShift repository"
+        uses: docker/login-action@v1
+        with:
+          registry: ${{secrets.OPENSHIFT_IMAGE_REPOSITORY}}
+          username: ${{secrets.OPENSHIFT_TOOLS_SERVICE_ACCOUNT_USERNAME}}
+          password: ${{secrets.OPENSHIFT_TOOLS_SERVICE_ACCOUNT_PASSWORD}}
+
+      - name: "Build, tag and push .NET web API image"
+        id: build-image
+        env:
+          VVC_DB_PASSWORD: ${{secrets.VVC_DB_PASSWORD}}
+          VVC_DB_USER: ${{secrets.VVC_DB_USER}}
+          COMPOSE_DOCKER_CLI_BUILD: 1
+          DOCKER_BUILDKIT: 1
+        run: |
+          docker-compose -f oc4-compose.yml build --force-rm --no-cache \
+            --build-arg ASPNETCORE_HTTPS_PORT=5001 \
+            --build-arg ASPNETCORE_ENVIRONMENT="Development" \
+            --build-arg ASPNETCORE_URLS="http://+:8080" \
+            --build-arg DB_CONNECTION_STRING="host=dev-postgres-db;port=5432;database=postgres;username=$VVC_DB_USER;password=$VVC_DB_PASSWORD" \
+            --build-arg DB_HOST=dev-postgres-db \
+            --build-arg DOTNET_CLI_HOME="/tmp/DOTNET_CLI_HOME" \
+            --build-arg PGPASSWORD=$VVC_DB_PASSWORD \
+            --build-arg POSTGRESQL_ADMIN_PASSWORD=$VVC_DB_PASSWORD \
+            --build-arg POSTGRESQL_USERNAME=$VVC_DB_USER \
+            --build-arg POSTGRESQL_DATABASE=postgres \
+            --build-arg SVC_NAME="dev" \
+            $SERVICE_NAME
+          docker tag moh-vvc-issuer_$SERVICE_NAME ${{secrets.OPENSHIFT_IMAGE_REPOSITORY}}/${{secrets.OPENSHIFT_LICENSE_PLATE}}-tools/$CONTAINER_NAME:dev
+          docker image push ${{secrets.OPENSHIFT_IMAGE_REPOSITORY}}/${{secrets.OPENSHIFT_LICENSE_PLATE}}-tools/$CONTAINER_NAME:dev
+
+  apply-oc-template:
+    runs-on: ubuntu-20.04
+    environment: Development
+    steps:
+      - name: "Use the OpenShift template"
+        uses: actions/checkout@v2
+
+      - name: Install OC
+        uses: redhat-actions/oc-installer@v1
+        with:
+          oc_version: "4.6"
+
+      - name: Authenticate and set context
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{secrets.OPENSHIFT_SERVER_URL}}
+          openshift_token: ${{secrets.OPENSHIFT_SERVICE_TOKEN}}
+          namespace: ${{secrets.OPENSHIFT_LICENSE_PLATE}}-dev
+
+      - name: "Process template"
+        id: oc
+        env:
+          COMPOSE_DOCKER_CLI_BUILD: 1
+          DOCKER_BUILDKIT: 1
+
+        run: |
+          oc process -f openshift/vvc-issuer.yml \
+            -p API_POD=webapi \
+            -p ASP_ENV=Development \
+            -p DB_POD=postgres-db \
+            -p IMAGE_TAG=dev \
+            -p SVC_NAME=dev \
+            -p OC_NAMESPACE=${{secrets.OPENSHIFT_LICENSE_PLATE}} \
+            -p OC_APP=${{secrets.OC_APP}} \
+            -p URL_STUB=-${{secrets.OPENSHIFT_LICENSE_PLATE}}-dev.apps.silver.devops.gov.bc.ca \
+            -p WEB_PORT=8080 \
+            -n ${{secrets.OPENSHIFT_LICENSE_PLATE}}-${{secrets.OC_APP}} | oc apply -n ${{secrets.OPENSHIFT_LICENSE_PLATE}}-${{secrets.OC_APP}} -f -
